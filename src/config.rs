@@ -10,5 +10,5 @@ pub struct Config {
     pub ignore: Vec<String>,
 
     #[serde(default, alias = "ignoreGroups")]
-    pub ignore_groups: Vec<String>
+    pub ignore_groups: Vec<String>,
 }

@@ -1,6 +1,9 @@
 package pkg
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 type Config struct {
 	Providers []Provider
@@ -13,8 +16,27 @@ type Provider struct {
 }
 
 type Package struct {
-	Name        string
-	Description string
+	Name                 string
+	Description          string
+	Version              string
+	Architecture         string
+	URL                  string
+	Licenses             []string
+	Groups               []string
+	Provides             []string
+	Dependencies         []string
+	OptionalDependencies []string
+	RequiredBy           []string
+	OptionalFor          []string
+	ConflictsWith        []string
+	Replaces             []string
+	InstalledSizeBytes   int64
+	Packager             string
+	BuildDate            time.Time
+	InstallDate          time.Time
+	InstallReason        string
+	ValidatedBy          string
+	InstallScript        bool
 }
 
 type Controller struct {

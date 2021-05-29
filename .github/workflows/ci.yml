@@ -1,0 +1,48 @@
+# .github/workflows/ci.yml
+on:
+  pull_request:
+  push:
+    branches:
+      - "master"
+      - "main"
+jobs:
+  tests:
+    runs-on: "ubuntu-latest"
+    container:
+      image: archlinux
+      options: --privileged
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [stable]
+    env:
+      RUST_BACKTRACE: full
+      RUSTV: ${{ matrix.rust }}
+    steps:
+      - name: setup
+        run: |
+          pacman -Syy
+          pacman -S --noconfirm base-devel
+      - uses: actions/checkout@v2
+      - name: Install Rust ${{ matrix.rust }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - name: Run cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target x86_64-unknown-linux-gnu --bin pkgctrl

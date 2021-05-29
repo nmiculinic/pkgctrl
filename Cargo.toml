@@ -1,0 +1,16 @@
+[package]
+name = "pkgctrl"
+version = "0.1.0"
+authors = ["Neven Miculinic <neven.miculinic@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+alpm = {version="~2", features=["git"]}
+serde_yaml = "~0.8"
+serde_json = { version = "~1"}
+serde = {version="~1", features = ["derive"]}
+alpm-utils = "0.7.0"
+pacmanconf = "~1"
+termcolor = "~1"

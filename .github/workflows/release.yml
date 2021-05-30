@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+jobs:
+  setup:
+    runs-on: "ubuntu-latest"
+    container:
+      image: archlinux
+      options: --privileged
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [stable]
+    env:
+      RUST_BACKTRACE: full
+      RUSTV: ${{ matrix.rust }}
+    steps:
+      - name: setup
+        run: |
+          pacman -Syy
+          pacman -S --noconfirm base-devel
+      - uses: actions/checkout@v2
+      - name: Install Rust ${{ matrix.rust }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - name: Cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+      - name: Cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target x86_64-unknown-linux-gnu --bin pkgctrl
+      - name: "Move pkgctrl"
+        run: |
+          mv target/x86_64-unknown-linux-gnu/release/pkgctrl pkgctrl-linux-amd64
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pkgctrl-linux-amd64
+          path: pkgctrl-linux-amd64
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            README.md
+            LICENSE
+            pkgctrl-linux-amd64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gen PKGBUILD
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --bin ci -- --pkgbuild-path PKGBUILD --pkgctrl-path pkgctrl-linux-amd64
+      - name: Verify PKGBUILD
+        run: |
+          useradd -m aur
+          cp PKGBUILD /home/aur/.
+          chown aur:aur  /home/aur/PKGBUILD
+          su aur
+          cd /home/aur && runuser -u aur -- makepkg -f --nodeps
+      - name: Publish AUR package
+        uses: KSXGitHub/github-actions-deploy-aur@v2.2.5
+        with:
+          pkgname: pkgctrl-bin
+          pkgbuild: ./PKGBUILD
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "updated to new version"
+          force_push: 'true'
+      - name: Cargo publish
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        with:
+          command: publish

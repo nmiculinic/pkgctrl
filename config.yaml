@@ -29,7 +29,7 @@ want:
   - git-crypt
   - git-extras
   - go
-  - goimports-git
+  - go-tools
   - golangci-lint-bin
   - google-chrome
   - google-cloud-sdk
@@ -101,6 +101,28 @@ want:
   - yay
   - yq
 ignore:
+- adobe-source-han-sans-cn-fonts
+- adobe-source-han-sans-jp-fonts
+- adobe-source-han-sans-kr-fonts
+- adobe-source-sans-pro-fonts
+- exfat-utils
+- grub-theme-manjaro
+- haveged
+- lib32-libcanberra
+- lib32-libcanberra-pulse
+- lib32-libva-intel-driver
+- lib32-libva-mesa-driver
+- lib32-libva-vdpau-driver
+- lib32-mesa-demos
+- lib32-mesa-vdpau
+- lib32-vulkan-intel
+- lib32-vulkan-radeon
+- linux510
+- manjaro-log-helper
+- mesa-vdpau
+- thunderbird
+- vulkan-intel
+- vulkan-radeon
 - acpi
 - acpid
 - alsa-firmware
